@@ -1,5 +1,11 @@
 # Modifies the environment to add library static target and includes
 # mbed must already be part of the environment, this depends on mbed
+#
+# Other utils must be imported separately.
+#
+# Usage
+#   SConscript('calsol-fw-libs/SConscript', variant_dir='build/calsol-fw-libs', exports='env', duplicate=0)
+
 Import('env')
 
 env.Append(CPPPATH=[
