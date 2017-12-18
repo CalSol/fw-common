@@ -3,10 +3,15 @@
 
 extern DmaSerial<1024> swdConsole;
 
-namespace debug {
+namespace calsol {
+namespace util {
+
+namespace debugConsole {
 char buffer[128];
 
 void puts(const char* string) {
   swdConsole.puts(string);
 }
 }
+
+}}

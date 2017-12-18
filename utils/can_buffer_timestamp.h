@@ -43,8 +43,8 @@ struct Timestamped_CANMessage {
 };
 
 /** Templated class with a buffer size based on RXSize and TXSize */
-template <int RXSize, int TXSize>
-class CANRXTX_Time_Buffer {
+template <int RXSize>
+class CANTimestampedRxBuffer {
 public:
 
   /** Constructs a new, empty CAN message buffer
@@ -54,14 +54,14 @@ public:
    *  @param t Timer to read the microseconds from, it should be reset every second
    *  @param handle message filter handle (0 for any message)
    */
-  CANRXTX_Time_Buffer(CAN& can, LongTimer& t,int handle=0): can(can), handle(handle), timer(t) {
-    can.attach(this, &CANRXTX_Time_Buffer<RXSize, TXSize>::handleIrq, CAN::RxIrq);
-    can.attach(this, &CANRXTX_Time_Buffer<RXSize, TXSize>::handleIrq, CAN::TxIrq);
-    can.attach(this, &CANRXTX_Time_Buffer<RXSize, TXSize>::handle_EWIRQ, CAN::EwIrq);
-    can.attach(this, &CANRXTX_Time_Buffer<RXSize, TXSize>::handle_DOIRQ, CAN::DoIrq);
-    can.attach(this, &CANRXTX_Time_Buffer<RXSize, TXSize>::handle_EPIRQ, CAN::EpIrq);
-    can.attach(this, &CANRXTX_Time_Buffer<RXSize, TXSize>::handle_ALIRQ, CAN::AlIrq);
-    can.attach(this, &CANRXTX_Time_Buffer<RXSize, TXSize>::handle_BEIRQ, CAN::BeIrq);
+  CANTimestampedRxBuffer(CAN& can, LongTimer& t,int handle=0): can(can), handle(handle), timer(t) {
+    can.attach(callback(this, &CANTimestampedRxBuffer<RXSize>::handleIrq), CAN::RxIrq);
+    can.attach(callback(this, &CANTimestampedRxBuffer<RXSize>::handleIrq), CAN::TxIrq);
+    can.attach(callback(this, &CANTimestampedRxBuffer<RXSize>::handle_EWIRQ), CAN::EwIrq);
+    can.attach(callback(this, &CANTimestampedRxBuffer<RXSize>::handle_DOIRQ), CAN::DoIrq);
+    can.attach(callback(this, &CANTimestampedRxBuffer<RXSize>::handle_EPIRQ), CAN::EpIrq);
+    can.attach(callback(this, &CANTimestampedRxBuffer<RXSize>::handle_ALIRQ), CAN::AlIrq);
+    can.attach(callback(this, &CANTimestampedRxBuffer<RXSize>::handle_BEIRQ), CAN::BeIrq);
   }
 
   /** Check if the receive buffer is empty
@@ -74,16 +74,6 @@ public:
     return rxBuffer.empty();
   }
 
-  /** Check if the transmit buffer is empty
-   *
-   *  @returns
-   *    true if empty
-   *    false if not empty
-   */
-  bool txEmpty() const {
-    return txBuffer.empty();
-  }
-
   /** Check if the receive buffer is full
    *
    *  @returns
@@ -92,16 +82,6 @@ public:
    */
   bool rxFull() const {
     return rxBuffer.full();
-  }
-
-  /** Check if the transmit buffer is full
-   *
-   *  @returns
-   *    true if full
-   *    false if not full
-   */
-  bool txFull() const {
-    return txBuffer.full();
   }
 
   /** Read a Timestamped_CANMessage from the buffer.
@@ -121,30 +101,10 @@ public:
     }
   }
 
-  /** Write a Timestamped_CANMessage to the buffer.
-   *
-   *  @param msg A Timestamped_CANMessage to write.
-   *
-   *  @returns
-   *    0 if no space in buffer,
-   *    1 if message added to buffer
+  /** Non-buffered passthrough write.
    */
   int write(CANMessage msg) {
-    if (txEmpty() && (can.txstatus() == CAN::Idle)) {
-      return can.write(msg);
-    } else if (!txFull()) {
-      txBuffer.write(msg);
-      return 1;
-    } else {
-      return 0;
-    }
-  }
-
-  /**
-   * Clear TX send buffer.
-   */
-  void clearTX() {
-    txBuffer.clear();
+    return can.write(msg);
   }
 
   /** CAN receive/transmit message IRQ handler
@@ -156,14 +116,6 @@ public:
     Timestamped_CANMessage msg(false, timer.read_ms());
     while (can.read(msg.data.msg, handle) && !rxFull()) {
       rxBuffer.write(msg);
-    }
-
-    while (!txEmpty()) {
-      if (can.write(txBuffer.peek()) != 0) {
-        txBuffer.discard();
-      } else {
-        break;
-      }
     }
   }
 
@@ -188,8 +140,7 @@ public:
 
 
 private:
-  CircularBuffer<Timestamped_CANMessage, RXSize> rxBuffer;    // Circular RX Buffer of Timestamped CAN Messages
-  CircularBuffer<CANMessage, TXSize> txBuffer;                // Circular TX Buffer of Regular CAN Messages
+  calsol::util::CircularBuffer<Timestamped_CANMessage, RXSize> rxBuffer;    // Circular RX Buffer of Timestamped CAN Messages
   CAN& can;                                                   // CAN object for receiving/transmitting messages
   LongTimer& timer;                                           // Reference to a timer object for timestamping
   const int handle;

@@ -9,10 +9,15 @@
   #define DEBUG_MODULE __FILE__
 #endif
 
-namespace debug {
+namespace calsol {
+namespace util {
+
+namespace debugConsole {
   extern char buffer[];
   void puts(const char* string);
 }
+
+}}
 
 #ifdef DEBUG_ENABLED
 
@@ -20,20 +25,20 @@ namespace debug {
 #define TOSTRING(x) STRINGIFY(x)
 
 #define debugPrint(f, ...)  \
-  sprintf(debug::buffer, f, ## __VA_ARGS__);  \
-  debug::puts(debug::buffer);  \
+  sprintf(calsol::util::debugConsole::buffer, f, ## __VA_ARGS__);  \
+  calsol::util::debugConsole::puts(calsol::util::debugConsole::buffer);  \
 
 #define debugInfo(f, ...)  \
-  debug::puts("\033[36mInfo)\033[0m " DEBUG_MODULE " " TOSTRING(__LINE__) ": ");  \
-  sprintf(debug::buffer, f, ## __VA_ARGS__);  \
-  debug::puts(debug::buffer);  \
-  debug::puts("\r\n");
+  calsol::util::debugConsole::puts("\033[36mInfo)\033[0m " DEBUG_MODULE " " TOSTRING(__LINE__) ": ");  \
+  sprintf(calsol::util::debugConsole::buffer, f, ## __VA_ARGS__);  \
+  calsol::util::debugConsole::puts(calsol::util::debugConsole::buffer);  \
+  calsol::util::debugConsole::puts("\r\n");
 
 #define debugWarn(f, ...)  \
-  debug::puts("\033[33mWarn)\033[0m " DEBUG_MODULE " " TOSTRING(__LINE__) ": ");  \
-  sprintf(debug::buffer, f, ## __VA_ARGS__);  \
-  debug::puts(debug::buffer);  \
-  debug::puts("\r\n");
+  calsol::util::debugConsole::puts("\033[33mWarn)\033[0m " DEBUG_MODULE " " TOSTRING(__LINE__) ": ");  \
+  sprintf(calsol::util::debugConsole::buffer, f, ## __VA_ARGS__);  \
+  calsol::util::debugConsole::puts(calsol::util::debugConsole::buffer);  \
+  calsol::util::debugConsole::puts("\r\n");
 
 #else
 
