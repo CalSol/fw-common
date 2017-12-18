@@ -56,7 +56,6 @@ public:
    */
   CANTimestampedRxBuffer(CAN& can, LongTimer& t,int handle=0): can(can), handle(handle), timer(t) {
     can.attach(callback(this, &CANTimestampedRxBuffer<RXSize>::handleIrq), CAN::RxIrq);
-    can.attach(callback(this, &CANTimestampedRxBuffer<RXSize>::handleIrq), CAN::TxIrq);
     can.attach(callback(this, &CANTimestampedRxBuffer<RXSize>::handle_EWIRQ), CAN::EwIrq);
     can.attach(callback(this, &CANTimestampedRxBuffer<RXSize>::handle_DOIRQ), CAN::DoIrq);
     can.attach(callback(this, &CANTimestampedRxBuffer<RXSize>::handle_EPIRQ), CAN::EpIrq);
