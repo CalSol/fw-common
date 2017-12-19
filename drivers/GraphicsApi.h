@@ -1,10 +1,45 @@
 #ifndef _GRAPHICS_API_H_
+#define _GRAPHICS_API_H_
 
-#include "mbed.h"
+#include <cstddef>
+#include <cstdint>
 
 // TODO font
 class GraphicsFont {
+  virtual uint8_t getFontHeight() = 0;  // return the font height, in pixels
 
+  virtual const uint8_t* getCharData(char in) = 0;  // returns a pointer to the character bit data
+  virtual uint8_t getCharWidth(char in) = 0;  // returns the width of the character, in pixels
+};
+
+class GeneratorFont : GraphicsFont {
+public:
+  GeneratorFont(const uint8_t** charData, const uint8_t* charWidths, uint8_t height, uint8_t maxWidth) :
+    charData_(charData), charWidths_(charWidths), height_(height), maxWidth_(maxWidth) {
+  }
+
+  uint8_t getFontHeight() {
+    return height_;
+  }
+
+  const uint8_t* getCharData(char in) {
+    if (in < 32 || in > 126) {
+      return NULL;
+    }
+    return charData_[in - 32];
+  }
+  uint8_t getCharWidth(char in) {
+    if (in < 32 || in > 126) {
+      return 0;
+    }
+    return charWidths_[in - 32];
+  }
+
+private:
+  const uint8_t** const charData_;
+  const uint8_t* const charWidths_;
+  const uint8_t height_;
+  const uint8_t maxWidth_;
 };
 
 /**

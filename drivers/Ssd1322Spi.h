@@ -1,7 +1,7 @@
 #ifndef _SSD1322_SPI_H_
+#define _SSD1322_SPI_H_
 
 #include <cassert>
-#include <stdint.h>
 #include "mbed.h"
 
 class Ssd1322Spi {

@@ -1,4 +1,5 @@
 #ifndef _SSD1322_SPI_GRAPHICS_H_
+#define _SSD1322_SPI_GRAPHICS_H_
 
 #include <utility>
 
