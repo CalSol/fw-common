@@ -6,13 +6,14 @@
 
 // TODO font
 class GraphicsFont {
+public:
   virtual uint8_t getFontHeight() = 0;  // return the font height, in pixels
 
   virtual const uint8_t* getCharData(char in) = 0;  // returns a pointer to the character bit data
   virtual uint8_t getCharWidth(char in) = 0;  // returns the width of the character, in pixels
 };
 
-class GeneratorFont : GraphicsFont {
+class GeneratorFont : public GraphicsFont {
 public:
   GeneratorFont(const uint8_t** charData, const uint8_t* charWidths, uint8_t height, uint8_t maxWidth) :
     charData_(charData), charWidths_(charWidths), height_(height), maxWidth_(maxWidth) {
@@ -100,10 +101,11 @@ public:
   virtual void line(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint8_t contrast) = 0;
 
   // Draws text (null-terminated string), the specified location is the top left of the text drawn
-  void text(uint16_t x, uint16_t y, const char* string, const GraphicsFont& font) {
-    text(x, y, string, font, 255);
+  // Returns the x coordinate of one pixel past the end.
+  uint16_t text(uint16_t x, uint16_t y, const char* string, GraphicsFont& font) {
+    return text(x, y, string, font, 255);
   }
-  virtual void text(uint16_t x, uint16_t y, const char* string, const GraphicsFont& font, uint8_t contrast) = 0;
+  virtual uint16_t text(uint16_t x, uint16_t y, const char* string, GraphicsFont& font, uint8_t contrast) = 0;
 
   // TODO: bitmapped image operations
 };

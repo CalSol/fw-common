@@ -5,5 +5,7 @@
 
 extern GeneratorFont Font3x5;
 extern GeneratorFont Font5x7;
+extern GeneratorFont FontArial16;
+extern GeneratorFont FontArial32;
 
 #endif

@@ -110,8 +110,35 @@ public:
     }
   }
 
-  virtual void text(uint16_t x, uint16_t y, const char* string, const GraphicsFont& font, uint8_t contrast) {
-    // TODO implement
+  virtual uint16_t text(uint16_t x, uint16_t y, const char* string, GraphicsFont& font, uint8_t contrast) {
+    for (; *string != 0; string++) {
+      const uint8_t* charData = font.getCharData(*string) - 1;
+      uint8_t charWidth = font.getCharWidth(*string);
+      uint8_t charColBytes = charWidth / 8;
+      if (charData != NULL) {
+        for (uint8_t col=0; col<charWidth; col++) {
+          if (x >= getWidth()) {
+            return getWidth();
+          }
+
+          for (uint8_t row=0; row<font.getFontHeight(); row++) {
+            uint8_t bitPos = row % 8;
+            if (bitPos == 0) {
+              charData++;
+            }
+            if (*charData & (1 << bitPos)) {
+              if (y + row < getHeight()) {
+                drawPixel(x, y + row, contrast);
+              }
+            }
+          }
+
+          x++;
+        }
+      }
+      x++;  // inter-character space
+    }
+    return x;
   }
 
 protected:
