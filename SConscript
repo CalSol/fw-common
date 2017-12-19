@@ -9,12 +9,14 @@
 Import('env')
 
 env.Append(CPPPATH=[
+  Dir('graphics').srcnode(),
   Dir('drivers').srcnode(),
   Dir('hal/api').srcnode(),
   Dir('utils').srcnode(),
 ])
 
 env.Prepend(LIBS=env.StaticLibrary('calsol-fw-libs', [
+  Glob('graphics/*.cpp'),
   Glob('drivers/*.cpp'),
   Glob('utils/*.cpp'),
 ]))
