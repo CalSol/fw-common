@@ -21,7 +21,7 @@
  *
  *  Typical usage:
  *    // 32 message buffer
- *    CANRXBuffer<32> canBuffer(can);
+ *    CANBuffer<32> canBuffer(can);
 
  *    void main() {
  *        while (1) {
@@ -33,16 +33,17 @@
  *        }
  *    }
  */
-template <int RXSize>
-class CANRXBuffer {
+template <int Size>
+class CANBuffer {
 public:
   /** Constructs a new, empty CAN message buffer
    *
    *  @param can CAN interface to read messages from
    *  @param handle message filter handle (0 for any message)
    */
-  CANRXBuffer(CAN& can, int handle=0) : can(can), handle(handle) {
-    can.attach(callback(this, &CANRXBuffer<RXSize>::handleIrq), CAN::RxIrq);
+  CANBuffer(CAN& can, int handle=0) : can(can), handle(handle) {
+    can.attach(callback(this, &CANBuffer<Size>::handleRxIrq), CAN::RxIrq);
+    can.attach(callback(this, &CANBuffer<Size>::handleTxIrq), CAN::TxIrq);
   }
 
   /** Check if the receive buffer is empty
@@ -83,27 +84,58 @@ public:
     return messageValid;
   }
 
-  /** Non-buffered passthrough write.
+  /** Buffered write. Returns 0 if the buffer is full.
    */
   int write(CANMessage msg) {
-    while (!can.write(msg)) {
+    int success = 0;
+    __disable_irq();
+    if(txIdle) {
+      txIdle = false;
+      success = can.write(msg);
+    } else if(!txBuffer.full()) {
+      txBuffer.write(msg);
+      success = 1;
     }
-    return true;
+    __enable_irq();
+    return success;
   }
 
   /** CAN receive message IRQ handler
    *  Reads any pending CAN messages into the RX buffer
    *  Stops when there are no more pending messages or the RX buffer is full
    */
-  void handleIrq() {
+  void handleRxIrq() {
     CANMessage msg;
     while (can.read(msg, handle) && !rxFull()) {
       rxBuffer.write(msg);
     }
   }
 
+  /** CAN transmit IRQ handler
+   *  Will get called each time the CAN peripheral is finished transmitting the message
+   *  It will then send a new message until the buffer is empty.
+   */
+  void handleTxIrq() {
+    if(!txBuffer.empty()) {
+      can.write(txBuffer.read());
+    } else {
+      txIdle = true;
+    }
+  }
+
+  /** Reset the buffers
+   *  Should be typically called when the CAN peripheral is reset.
+   */
+  void reset() {
+    rxBuffer.clear();
+    txBuffer.clear();
+    txIdle = true;
+  }
+
 private:
-  calsol::util::CircularBuffer<CANMessage, RXSize> rxBuffer;
+  calsol::util::CircularBuffer<CANMessage, Size> rxBuffer;
+  calsol::util::CircularBuffer<CANMessage, Size> txBuffer;
+  bool txIdle = true;
   CAN& can;
   const int handle;
 };
