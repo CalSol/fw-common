@@ -135,8 +135,8 @@ public:
 
           x++;
         }
+        x++;  // inter-character space
       }
-      x++;  // inter-character space
     }
     return x;
   }

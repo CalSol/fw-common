@@ -48,6 +48,13 @@ public:
   }
 
   /**
+   * Returns the su,
+   */
+  V readSum() const {
+    return sum_;
+  }
+
+  /**
    * Resets the moving average filter.
    */
   void reset() {
