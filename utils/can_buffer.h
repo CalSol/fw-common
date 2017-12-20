@@ -86,7 +86,9 @@ public:
   /** Non-buffered passthrough write.
    */
   int write(CANMessage msg) {
-    return can.write(msg);
+    while (!can.write(msg)) {
+    }
+    return true;
   }
 
   /** CAN receive message IRQ handler
