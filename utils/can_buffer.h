@@ -91,8 +91,7 @@ public:
     __disable_irq();
     if(txIdle) {
       txIdle = false;
-      can.write(msg);
-      success = 1;
+      success = can.write(msg);
     } else if(!txBuffer.full()) {
       txBuffer.write(msg);
       success = 1;
