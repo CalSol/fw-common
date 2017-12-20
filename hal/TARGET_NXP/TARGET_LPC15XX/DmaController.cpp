@@ -1,12 +1,12 @@
 #include "DmaController.h"
 
 uint32_t DmaController::dmaDescriptors_[18][4] __attribute__((aligned(512)));
-FunctionPointer DmaController::dmaCallbacks_[kNumDmaChannels];
+Callback<void()> DmaController::dmaCallbacks_[kNumDmaChannels];
 
 void DmaController::memToPeriphTransfer(volatile void* dst, void* src, size_t len,
     uint8_t channel, void (*callback)()) {
   if (callback) {
-    dmaCallbacks_[channel].attach(callback);
+    dmaCallbacks_[channel] = callback;
     memToPeriphTransfer(dst, src, len, channel, true);
   } else {
     memToPeriphTransfer(dst, src, len, channel, false);

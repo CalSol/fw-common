@@ -51,7 +51,7 @@ protected:
   static void irqHandler();
 
   static uint32_t dmaDescriptors_[kNumDmaChannels][4];
-  static FunctionPointer dmaCallbacks_[kNumDmaChannels];
+  static Callback<void()> dmaCallbacks_[kNumDmaChannels];
 };
 
 #endif
