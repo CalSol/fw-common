@@ -83,25 +83,25 @@ public:
   }
 
   // Draw a rectangle, coordinates are inclusive
-  void rect(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
-    rect(x1, y1, x2, y2, 255);
+  void rect(uint16_t x, uint16_t y, int16_t w, int16_t h) {
+    rect(x, y, w, h, 255);
   }
-  virtual void rect(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint8_t contrast) = 0;
+  virtual void rect(uint16_t x, uint16_t y, int16_t w, int16_t h, uint8_t contrast) = 0;
 
   // Draw a filled rectangle, coordinates are inclusive
-  void rectFilled(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
-    rectFilled(x1, y1, x2, y2, 255);
+  void rectFilled(uint16_t x, uint16_t y, int16_t w, int16_t h) {
+    rectFilled(x, y, w, h, 255);
   }
-  virtual void rectFilled(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint8_t contrast) = 0;
+  virtual void rectFilled(uint16_t x, uint16_t y, int16_t w, int16_t h, uint8_t contrast) = 0;
 
   // Draw a line, using a fast line algorithm
-  void line(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
-    line(x1, y1, x2, y2, 255);
+  void line(uint16_t x, uint16_t y, int16_t w, int16_t h) {
+    line(x, y, w, h, 255);
   }
-  virtual void line(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint8_t contrast) = 0;
+  virtual void line(uint16_t x, uint16_t y, int16_t w, int16_t h, uint8_t contrast) = 0;
 
   // Draws text (null-terminated string), the specified location is the top left of the text drawn
-  // Returns the x coordinate of one pixel past the end.
+  // Returns the horizontal size, in pixels, of the text drawn
   uint16_t text(uint16_t x, uint16_t y, const char* string, GraphicsFont& font) {
     return text(x, y, string, font, 255);
   }

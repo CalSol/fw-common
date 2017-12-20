@@ -46,71 +46,96 @@ public:
   using GraphicsApi::line;
   using GraphicsApi::text;
 
-  void rect(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint8_t contrast) {
-    if (x2 < x1) {
-      std::swap(x1, x2);
+  void rect(uint16_t x, uint16_t y, int16_t w, int16_t h, uint8_t contrast) {
+    uint16_t x2 = x + w;
+    uint16_t y2 = y + h;
+    if (x2 < 0) {
+      x2 = 0;
     }
-    if (y2 < y1) {
-      std::swap(y1, y2);
+    if (y2 < 0) {
+      y2 = 0;
+    }
+    if (x2 < x) {
+      std::swap(x, x2);
+    }
+    if (y2 < y) {
+      std::swap(y, y2);
     }
 
-    for (uint16_t x=x1; x<=x2; x++) {
-      drawPixel(x, y1, contrast);
-      drawPixel(x, y2, contrast);
+    for (uint16_t xPos=x; xPos<x2; xPos++) {
+      drawPixel(xPos, y, contrast);
+      drawPixel(xPos, y2, contrast);
     }
 
-    if ((y2 - y1) > 1) {
-      for (uint16_t y=y1; y<=y2; y++) {
-        drawPixel(x1, y, contrast);
-        drawPixel(x2, y, contrast);
+    if ((y2 - y) > 1) {
+      for (uint16_t yPos=y; yPos<y2; yPos++) {
+        drawPixel(x, yPos, contrast);
+        drawPixel(x2, yPos, contrast);
       }
     }
   }
 
-  void rectFilled(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint8_t contrast) {
-    for (uint16_t y=y1; y<=y2; y++) {
-      for (uint16_t x=x1; x<=x2; x++) {
-        drawPixel(x, y, contrast);
+  void rectFilled(uint16_t x, uint16_t y, int16_t w, int16_t h, uint8_t contrast) {
+    uint16_t x2 = x + w;
+    uint16_t y2 = y + h;
+    if (x2 < 0) {
+      x2 = 0;
+    }
+    if (y2 < 0) {
+      y2 = 0;
+    }
+    if (x2 < x) {
+      std::swap(x, x2);
+    }
+    if (y2 < y) {
+      std::swap(y, y2);
+    }
+
+    for (uint16_t yPos=y; yPos<y2; yPos++) {
+      for (uint16_t xPos=x; xPos<x2; xPos++) {
+        drawPixel(xPos, yPos, contrast);
       }
     }
   }
 
-  void line(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint8_t contrast) {
-    int16_t dx = abs(x2 - x1);
-    int16_t dy = abs(y2 - y1);
+  void line(uint16_t x, uint16_t y, int16_t w, int16_t h, uint8_t contrast) {
+    int16_t dx = abs(w);
+    int16_t dy = abs(h);
 
-    int16_t d = 2 * dy - dx;
-    int16_t xIncr = (x2 - x1) < 0? -1 : 1;
-    int16_t yIncr = (y2 - y1) < 0? -1 : 1;
+    int16_t xIncr = w < 0? -1 : 1;
+    int16_t yIncr = h < 0? -1 : 1;
 
     if (dx >= dy) {
       // in x-major
-      uint16_t y = y1;
-      for (uint16_t x=x1; x!=x2; x+=xIncr) {
-        drawPixel(x, y, contrast);
+      int16_t d = 2 * dy - dx;
+      uint16_t yPos = y;
+      uint16_t x2 = x + w;
+      for (uint16_t xPos=x; xPos!=x2; xPos+=xIncr) {
+        drawPixel(xPos, yPos, contrast);
         if (d > 0) {
-          y += yIncr;
+          yPos += yIncr;
           d -= 2 * dx;
         }
         d += 2 * dy;
       }
-      drawPixel(x2, y, contrast);
     } else {
       // in y-major
-      uint16_t x = x1;
-      for (uint16_t y=y1; y!=y2; y+=yIncr) {
-        drawPixel(x, y, contrast);
+      int16_t d = 2 * dx - dy;
+      uint16_t xPos = x;
+      uint16_t y2 = y + h;
+      for (uint16_t yPos=y; yPos!=y2; yPos+=yIncr) {
+        drawPixel(xPos, yPos, contrast);
         if (d > 0) {
-          x += xIncr;
+          xPos += xIncr;
           d -= 2 * dy;
         }
         d += 2 * dx;
       }
-      drawPixel(x, y2, contrast);
     }
   }
 
   virtual uint16_t text(uint16_t x, uint16_t y, const char* string, GraphicsFont& font, uint8_t contrast) {
+    uint16_t origx = x;
     for (; *string != 0; string++) {
       const uint8_t* charData = font.getCharData(*string) - 1;
       uint8_t charWidth = font.getCharWidth(*string);
@@ -118,7 +143,7 @@ public:
       if (charData != NULL) {
         for (uint8_t col=0; col<charWidth; col++) {
           if (x >= getWidth()) {
-            return getWidth();
+            return getWidth() - origx;
           }
 
           for (uint8_t row=0; row<font.getFontHeight(); row++) {
@@ -138,7 +163,7 @@ public:
         x++;  // inter-character space
       }
     }
-    return x;
+    return x - origx - 1;  // don't count the trailing space
   }
 
 protected:
