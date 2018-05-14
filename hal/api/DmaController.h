@@ -38,7 +38,7 @@ public:
   template<typename T>
   void memToPeriphTransfer(volatile void* dst, void* src, size_t len,
         uint8_t channel, T* tptr, void (T::*mptr)(void)) {
-    dmaCallbacks_[channel].attach(tptr, mptr);
+    dmaCallbacks_[channel] = Callback<void()>(tptr, mptr);
     memToPeriphTransfer(dst, src, len, channel, true);
   }
 
