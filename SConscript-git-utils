@@ -41,7 +41,15 @@ def check_submodule_version(env):
   submodule_errors = []
 
   if GetOption('submodule') != 'ignore':
-    p = Popen(['git', 'submodule', 'status'], cwd=env.Dir('.').abspath, stdout=PIPE)
+    cmd = ['git', 'submodule', 'status']
+    try:
+      p = Popen(cmd, cwd=env.Dir('.').abspath, stdout=PIPE)
+    except Exception as e:
+      errstr = "Unable to check submodule status, command %s failed with exception: \n  %s: %s" % (cmd, e.__class__.__name__, e)
+      errstr += "\nCheck that git is installed and on your system PATH."
+      raise SCons.Errors.UserError(errstr)
+      return None
+
     out, _ = p.communicate()
     if p.returncode == 0:
       for status in out.decode().splitlines():
@@ -56,7 +64,7 @@ def check_submodule_version(env):
           else:
             submodule_errors.append("\n- Internal error: submodule '%s' has unknown status '%s'." % (name, prefix))
     else:
-      warnings.warn("Unable to get check submodule status.")
+      raise SCons.Errors.UserError("Unable to check submodule status, command %s had nonzero reutrn %s." % (cmd, p.returncode))
 
   if submodule_errors:
     errstr = ''.join(submodule_errors)
@@ -69,10 +77,18 @@ def check_submodule_version(env):
 env.AddMethod(check_submodule_version, "CheckSubmoduleVersion")
 
 def get_git_version(env):
-  p = Popen(['git', 'describe', '--tags', '--always', '--long', '--dirty'], cwd=env.Dir('.').abspath, stdout=PIPE)
+  cmd = ['git', 'describe', '--tags', '--always', '--long', '--dirty']
+  try:
+    p = Popen(cmd, cwd=env.Dir('.').abspath, stdout=PIPE)
+  except Exception as e:
+    warnings.warn("Unable to get repository commit, command %s failed with exception %s: %s. "  % (cmd, e.__class__.__name__, e) +
+    "Check that git is installed and on your system PATH.")
+    return None
   out, _ = p.communicate()
+
   if p.returncode == 0:
     return out.decode().strip()
   else:
+    warnings.warn("Unable to get repository commit, command %s had nonzero return %s." % (cmd, p.returncode))
     return None
 env.AddMethod(get_git_version, "GetGitVersion")
