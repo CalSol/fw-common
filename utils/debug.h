@@ -19,6 +19,14 @@ namespace debugConsole {
 
 }}
 
+#ifdef __GNUC__  // TODO should this be in its own file?
+  #define STRINGIFY(X) #X
+  #define TOSTRING(x) STRINGIFY(x)
+  #define COMPILERNAME "GNUC " TOSTRING(__GNUC__) "." TOSTRING(__GNUC_MINOR__) "." TOSTRING(__GNUC_PATCHLEVEL__)
+#else
+  #error "Unknown compiler, add definition above"
+#endif
+
 #ifdef DEBUG_ENABLED
 
 #define STRINGIFY(X) #X
