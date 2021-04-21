@@ -1,0 +1,16 @@
+{
+  "owner": "CalSol",
+  "name": "fw-libs",
+  "description": "Open and shared firmware libraries",
+  "frameworks": ["mbed"],
+  "version": "0.0.0",
+  "build": {
+    "includeDir": ".",
+    "flags": [
+      "-I hal/api",
+      "-I drivers",
+      "-I utils"
+    ],
+    "srcDir": "."
+  }
+}
