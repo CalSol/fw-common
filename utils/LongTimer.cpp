@@ -24,7 +24,6 @@ uint32_t LongTimer::read_short_us() {
 uint64_t LongTimer::read_us() {
   // NOT THREAD SAFE, but is interrupt-safe with update.
   uint32_t currentUs = (uint32_t)usTimer_.read_us();
-  uint64_t longUs;
   uint8_t bufferedCurrentIndex = currentIndex_.load(std::memory_order_acquire);
   uint32_t currentRollover = usRollovers_[bufferedCurrentIndex].load(std::memory_order_relaxed);
   if (currentUs < lastUs_[bufferedCurrentIndex]) {

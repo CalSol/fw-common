@@ -42,7 +42,7 @@ public:
      *
      * @param time Time to set
      */
-    int settime(const tm& time);
+    void settime(const tm& time);
 
     /** Enable the second interrupt
      * The INT pin will go HIGH on every second and will attach

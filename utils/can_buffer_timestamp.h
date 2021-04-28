@@ -54,7 +54,7 @@ public:
    *  @param t Timer to read the microseconds from, it should be reset every second
    *  @param handle message filter handle (0 for any message)
    */
-  CANTimestampedRxBuffer(CAN& can, LongTimer& t,int handle=0): can(can), handle(handle), timer(t) {
+  CANTimestampedRxBuffer(CAN& can, LongTimer& t, int handle=0): can(can), timer(t), handle(handle) {
     can.attach(callback(this, &CANTimestampedRxBuffer<RXSize>::handleIrq), CAN::RxIrq);
     can.attach(callback(this, &CANTimestampedRxBuffer<RXSize>::handle_EWIRQ), CAN::EwIrq);
     can.attach(callback(this, &CANTimestampedRxBuffer<RXSize>::handle_DOIRQ), CAN::DoIrq);

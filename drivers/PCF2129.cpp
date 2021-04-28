@@ -32,6 +32,8 @@ bool PCF2129::gettime(tm *time) {
     uint8_t year = RTC_spi.write(0x00);
     RTC_cs = 1;
 
+    (void)(weekday);  // avoid unused variable warning
+
     // Convert from device's BCD (binary coded decimal) format to int
     time->tm_sec = bcdToInt(sec & 0x7f);
     time->tm_min = bcdToInt(min & 0x7f);
@@ -42,7 +44,7 @@ bool PCF2129::gettime(tm *time) {
     return !(sec & 0x80);  // OSF bit
 }
 
-int PCF2129::settime(const tm &time) {
+void PCF2129::settime(const tm &time) {
     uint8_t command = 0b00100000;           //Write starting at the sec register
     // Convert to device's BCD (binary coded decimal) format
     uint8_t sec = intToBcd(time.tm_sec);
