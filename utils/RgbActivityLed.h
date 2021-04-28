@@ -72,7 +72,7 @@ public:
   RgbActivityDigitalOut(Timer& timebase,
       DigitalOut& r, DigitalOut& g, DigitalOut& b,
       bool onPolarity) :
-      r_(r), g_(g), b_(b), onPolarity_(onPolarity), RgbActivity(timebase) {
+      RgbActivity(timebase), r_(r), g_(g), b_(b), onPolarity_(onPolarity) {
   }
 
   void setRgb(bool r, bool g, bool b) ;
@@ -95,14 +95,16 @@ public:
       uint8_t* g, uint8_t gMask,
       uint8_t* b, uint8_t bMask,
       bool onPolarity) :
+      RgbActivity(timebase),
       r_(r), rMask_(rMask), g_(g), gMask_(gMask), b_(b), bMask_(bMask),
-      onPolarity_(onPolarity), RgbActivity(timebase) {
+      onPolarity_(onPolarity) {
   }
   RgbActivityBitvector(Timer& timebase,
       uint8_t* bitVector, uint8_t rMask, uint8_t gMask, uint8_t bMask,
       bool onPolarity) :
+      RgbActivity(timebase),
       r_(bitVector), rMask_(rMask), g_(bitVector), gMask_(gMask), b_(bitVector), bMask_(bMask),
-      onPolarity_(onPolarity), RgbActivity(timebase) {
+      onPolarity_(onPolarity) {
   }
 
 
